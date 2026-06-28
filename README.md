@@ -38,13 +38,29 @@
 - **多格式输出**:Markdown / Word / PDF。
 - **尊重你的时间**:提问有上限、随时可跳过。
 
-## 安装与使用
+## 一键安装
 
-### 在 Cowork 模式
+### Claude Code(命令行,一行搞定)
+把仓库直接克隆到你的用户级技能目录,Claude Code 下次启动就会自动发现:
+
+```bash
+git clone https://github.com/andyhucy-boop/tutorial-generator.git ~/.claude/skills/tutorial-generator
+```
+
+只想用在某个项目里?在项目根目录执行:
+
+```bash
+git clone https://github.com/andyhucy-boop/tutorial-generator.git .claude/skills/tutorial-generator
+```
+
+更新到最新版:
+
+```bash
+cd ~/.claude/skills/tutorial-generator && git pull
+```
+
+### Cowork 模式(桌面应用)
 下载本仓库打包出的 `tutorial-generator.skill` 文件,在 Claude 桌面应用里点击 **Save skill / 安装** 即可。
-
-### 在 Claude Code
-把 `tutorial-generator/` 目录放进你的技能目录(例如 `~/.claude/skills/`),Claude Code 启动时会自动发现。
 
 ### 怎么触发
 直接说出你的学习需求即可,例如:
