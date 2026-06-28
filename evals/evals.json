@@ -1,0 +1,59 @@
+{
+  "skill_name": "tutorial-generator",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "我想学 AI 提示词工程,我是做电商客服的,完全是新手,想用它来帮我自动回复一些常见的售后问题。帮我写一份教程。",
+      "expected_output": "一份中文的、深入详尽的 Markdown 教程,针对电商客服场景定制示例,从零基础讲起,包含练习+答案、自测 Quiz、速查表/术语表、常见陷阱、进阶资源,并引用了联网查到的最新来源(模型/工具名称为当前的)。",
+      "files": [],
+      "expectations": [
+        "输出是一个 Markdown (.md) 文件",
+        "教程使用中文写作",
+        "示例围绕电商/客服场景(而非泛泛而谈)",
+        "包含练习题且附有答案/解析",
+        "包含自测 Quiz 或小测验",
+        "包含速查表(cheat sheet)和术语表(glossary)",
+        "包含'常见陷阱/常见错误'章节",
+        "包含进阶资源/下一步推荐",
+        "包含带链接的来源(Sources)章节",
+        "执行过程中进行了联网搜索(web search)"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I'm a backend developer comfortable with Python and REST APIs. I want to learn how to build a RAG pipeline with a vector database to add a Q&A feature over our internal docs site. Write me an in-depth guide.",
+      "expected_output": "An in-depth English Markdown tutorial pitched at an intermediate developer (not absolute beginner), with runnable code examples for a RAG pipeline, exercises with solutions, a quiz, cheat sheet, glossary, common pitfalls, next steps, and cited current sources (current model/library names).",
+      "files": [],
+      "expectations": [
+        "Output is a Markdown (.md) file",
+        "Tutorial is written in English",
+        "Content is pitched at an intermediate developer, not a total beginner",
+        "Includes runnable code examples relevant to a RAG / vector-database pipeline",
+        "Includes exercises with worked solutions",
+        "Includes a self-check quiz",
+        "Includes a cheat sheet and a glossary",
+        "Includes a common pitfalls section",
+        "Includes a Sources section with clickable links",
+        "Performed web search during execution"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "我刚工作两年,是个对投资几乎零基础的上班族,想系统入门个人理财和基金定投。给我做一份完整的学习资料。",
+      "expected_output": "一份中文的、面向理财新手的深入 Markdown 学习资料(非编程主题,测试通用性),示例贴合刚工作的上班族,含练习+答案、Quiz、速查表/术语表、常见陷阱、进阶资源、来源链接,并体现了联网查到的最新信息。",
+      "files": [],
+      "expectations": [
+        "输出是一个 Markdown (.md) 文件",
+        "教程使用中文写作",
+        "内容面向理财新手且示例贴合刚工作的上班族",
+        "包含练习题且附有答案/解析",
+        "包含自测 Quiz",
+        "包含速查表和术语表",
+        "包含'常见陷阱'章节",
+        "包含进阶资源/下一步",
+        "包含带链接的来源章节",
+        "执行过程中进行了联网搜索"
+      ]
+    }
+  ]
+}
