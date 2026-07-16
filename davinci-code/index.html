@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>达芬奇密码 · 人机对战</title>
+<!-- UI/UX Pro Max 推荐字体:Classic Elegant(Playfair Display + Inter),离线自动回退系统字体 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* =====================================================================
+     设计系统 · 由 UI/UX Pro Max 技能生成
+     · 风格:3D & Hyperrealism(tactile / skeuomorphic,适合 Gaming)
+     · 配色:Card & Board Game —— Felt green + gold on dark
+     · 字体:Classic Elegant —— Playfair Display / Inter
+     · 语义化 color tokens · 浅深双主题 · A11y(焦点/对比/reduced-motion)
+     ===================================================================== */
+  :root{
+    --font-serif:"Playfair Display", Georgia, "Times New Roman", serif;
+    --font-sans:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+    --r-sm:10px; --r:14px; --r-lg:18px;
+    --t:200ms cubic-bezier(.4,0,.2,1);
+  }
+  /* ---- 深色(推荐主色板:Felt green + gold on dark)---- */
+  :root, [data-theme="dark"]{
+    --bg:#0f172a; --felt:#15803d; --felt-2:#166534;
+    --card:#192134; --panel:rgba(255,255,255,.045); --panel-2:rgba(255,255,255,.07);
+    --ink:#f1f5f9; --muted:#94a3b8;
+    --gold:#d97706; --gold-2:#fbbf24; --gold-dim:rgba(217,119,6,.22);
+    --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.12);
+    --good:#22c55e; --bad:#ef4444;
+    --tw1:#f8f3e6; --tw2:#e2dcc9; --twk:#26221a;
+    --tb1:#334155; --tb2:#111827; --tbk:#f8fafc;
+    --card-sh:0 1px 0 rgba(255,255,255,.05) inset, 0 14px 34px rgba(0,0,0,.4);
+  }
+  /* ---- 浅色(Premium dark + gold)---- */
+  [data-theme="light"]{
+    --bg:#f4efe3; --felt:#15803d; --felt-2:#166534;
+    --card:#ffffff; --panel:rgba(255,255,255,.72); --panel-2:rgba(255,255,255,.92);
+    --ink:#1c1917; --muted:#6b6152;
+    --gold:#a16207; --gold-2:#b45309; --gold-dim:rgba(161,98,7,.18);
+    --line:rgba(120,90,30,.2); --line-2:rgba(120,90,30,.12);
+    --good:#15803d; --bad:#dc2626;
+    --tw1:#fbf7ec; --tw2:#ece2cc; --twk:#2b2418;
+    --tb1:#2f3646; --tb2:#141821; --tbk:#f4efe3;
+    --card-sh:0 1px 0 rgba(255,255,255,.7) inset, 0 12px 30px rgba(90,70,30,.16);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font-sans); color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased;
+    font-size:16px; line-height:1.5;
+    background:
+      radial-gradient(1000px 560px at 50% -6%, rgba(21,128,61,.28), transparent 62%),
+      radial-gradient(1300px 900px at 50% 118%, rgba(21,128,61,.12), transparent 70%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.05) 1px, transparent 0);
+    background-size:22px 22px;
+    -webkit-mask-image:radial-gradient(1200px 800px at 50% 30%, #000, transparent 75%);
+            mask-image:radial-gradient(1200px 800px at 50% 30%, #000, transparent 75%);
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:22px 16px 46px;position:relative;z-index:1}
+
+  /* icon 基类(SVG 图标,非 emoji)*/
+  .ic{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;
+    stroke-linejoin:round;flex:none;display:inline-block;vertical-align:-3px}
+
+  /* ============ 顶栏 ============ */
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  .brand{display:flex;flex-direction:column;gap:3px}
+  h1{font-family:var(--font-serif);font-size:28px;margin:0;letter-spacing:.5px;color:var(--gold-2);
+    display:flex;align-items:center;gap:11px;font-weight:700}
+  h1 .ic{width:26px;height:26px;stroke-width:2;color:var(--gold-2)}
+  .sub{font-size:11px;color:var(--muted);letter-spacing:3.5px;text-transform:uppercase;margin-left:37px;font-weight:500}
+  .btns{display:flex;gap:9px;flex-wrap:wrap}
+
+  button{font-family:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    padding:9px 15px;border-radius:var(--r);font-size:14px;transition:transform var(--t),border-color var(--t),box-shadow var(--t),background var(--t);
+    font-weight:600;display:inline-flex;align-items:center;gap:7px;backdrop-filter:blur(6px)}
+  button:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.22)}
+  button:active{transform:translateY(0)}
+  button:focus-visible{outline:2px solid var(--gold-2);outline-offset:2px}
+  button:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+  button.primary{background:linear-gradient(180deg,var(--gold-2),var(--gold));border-color:var(--gold);
+    color:#241a06;font-weight:800;box-shadow:0 6px 18px rgba(180,120,20,.32)}
+  button.primary:hover{filter:brightness(1.05)}
+  button.ghost{background:transparent}
+  button .ic{width:17px;height:17px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--card-sh);
+    backdrop-filter:blur(10px)}
+
+  /* ============ 开局面板 ============ */
+  #setup{padding:28px 26px;margin-bottom:16px;position:relative;overflow:hidden}
+  #setup::after{content:"";position:absolute;inset:0;border-radius:var(--r-lg);pointer-events:none;
+    box-shadow:0 0 0 1px var(--gold-dim) inset}
+  #setup h2{margin:0 0 8px;font-size:22px;font-family:var(--font-serif);color:var(--gold-2);font-weight:700}
+  #setup p{margin:0 0 20px;color:var(--muted);font-size:14px;line-height:1.75;max-width:70ch}
+  .opts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .seg button{border:none;border-radius:0;background:transparent;padding:10px 18px;font-weight:600;backdrop-filter:none}
+  .seg button:hover{transform:none;box-shadow:none;color:var(--gold-2)}
+  .seg button:focus-visible{outline-offset:-2px}
+  .seg button.on{background:linear-gradient(180deg,var(--gold-2),var(--gold));color:#241a06;font-weight:800}
+  .lab{font-size:12px;color:var(--muted);letter-spacing:1px;font-weight:600}
+
+  /* ============ 棋盘 ============ */
+  #board{display:none}
+  .zone{padding:17px 19px;margin-bottom:14px;position:relative}
+  .ztitle{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;gap:8px}
+  .ztitle .name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px;letter-spacing:.3px}
+  .ztitle .name .ic{color:var(--gold-2)}
+  .badge{font-size:11px;padding:4px 11px;border-radius:999px;background:var(--panel-2);color:var(--muted);
+    border:1px solid var(--line);letter-spacing:.5px;font-weight:600}
+  .badge.turn{background:linear-gradient(180deg,var(--gold-2),var(--gold));color:#241a06;border-color:var(--gold);
+    font-weight:800;animation:pulse 1.7s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}50%{box-shadow:0 0 0 4px rgba(251,191,36,.25)}}
+
+  .hand{display:flex;gap:10px;flex-wrap:wrap;min-height:90px;align-items:center;perspective:1000px}
+
+  /* ---- 实体牌(tactile / skeuomorphic)---- */
+  .tile{--tw:58px;width:var(--tw);height:calc(var(--tw) * 1.36);border-radius:var(--r);
+    display:flex;align-items:center;justify-content:center;position:relative;user-select:none;
+    font-family:var(--font-serif);font-size:30px;font-weight:700;line-height:1;
+    transition:transform var(--t),box-shadow var(--t);border:1px solid rgba(0,0,0,.28);
+    box-shadow:0 2px 3px rgba(0,0,0,.3), 0 7px 14px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.2) inset, 0 -7px 12px rgba(0,0,0,.28) inset;
+    transform-style:preserve-3d}
+  .tile::before{content:"";position:absolute;inset:0;border-radius:var(--r);pointer-events:none;
+    background:linear-gradient(180deg, rgba(255,255,255,.3), transparent 44%)}
+  .tile.b{background:linear-gradient(165deg,var(--tb1),var(--tb2));color:var(--tbk);border-color:rgba(0,0,0,.55)}
+  .tile.w{background:linear-gradient(165deg,var(--tw1),var(--tw2));color:var(--twk);border-color:rgba(120,100,60,.35)}
+
+  .tile.hidden{color:transparent}
+  .tile.hidden::after{content:"?";position:absolute;font-size:26px;font-weight:700;opacity:.9;
+    color:var(--gold-2);text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .tile.w.hidden::after{color:var(--gold);text-shadow:0 1px 1px rgba(0,0,0,.12)}
+  .tile.hidden::before{background:
+    linear-gradient(180deg, rgba(255,255,255,.24), transparent 44%),
+    repeating-linear-gradient(45deg, rgba(217,119,6,.12) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(-45deg, rgba(217,119,6,.09) 0 6px, transparent 6px 12px)}
+
+  .tile .rev{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);font-size:9px;
+    background:var(--bad);color:#fff;padding:2px 7px;border-radius:7px;white-space:nowrap;font-weight:700;
+    box-shadow:0 3px 8px rgba(0,0,0,.35);letter-spacing:.5px;font-family:var(--font-sans)}
+  .tile.pick{cursor:pointer}
+  .tile.pick:hover{transform:translateY(-6px);box-shadow:0 14px 22px rgba(0,0,0,.5),0 0 0 2px var(--gold) inset}
+  .tile.pick:focus-visible{outline:2px solid var(--gold-2);outline-offset:3px}
+  .tile.sel{transform:translateY(-9px) scale(1.03);
+    box-shadow:0 0 0 3px var(--gold-2),0 16px 28px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.22) inset}
+  .tile.flip{animation:flip .55s cubic-bezier(.4,0,.2,1)}
+  @keyframes flip{0%{transform:rotateY(0)}45%{transform:rotateY(90deg) translateY(-6px) scale(1.06)}
+    55%{transform:rotateY(-90deg) translateY(-6px) scale(1.06)}100%{transform:rotateY(0)}}
+  .tile.temp{box-shadow:0 0 0 3px var(--good),0 8px 16px rgba(0,0,0,.4)}
+
+  /* ============ 中央区 ============ */
+  #center{padding:19px;margin-bottom:14px;display:flex;flex-direction:column;gap:15px;position:relative}
+  .draws{display:flex;gap:24px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
+  .pile{display:flex;flex-direction:column;align-items:center;gap:9px}
+  .pileTile{--pw:50px;width:var(--pw);height:calc(var(--pw)*1.36);border-radius:var(--r-sm);display:flex;
+    align-items:center;justify-content:center;font-family:var(--font-serif);font-weight:700;font-size:16px;position:relative;
+    box-shadow:0 6px 10px rgba(0,0,0,.4), 6px 6px 0 -2px var(--card), 11px 11px 0 -4px rgba(21,128,61,.35)}
+  .pileTile.b{background:linear-gradient(165deg,var(--tb1),var(--tb2));color:var(--gold-2)}
+  .pileTile.w{background:linear-gradient(165deg,var(--tw1),var(--tw2));color:var(--gold)}
+  .pileTile .cnt{position:absolute;bottom:5px;font-size:12px;opacity:.9}
+  .pileTile .tag{position:absolute;top:-11px;font-size:10px;background:var(--panel-2);border:1px solid var(--line);
+    padding:2px 8px;border-radius:7px;color:var(--muted);letter-spacing:.5px;backdrop-filter:blur(4px);font-family:var(--font-sans)}
+  .pile button{padding:7px 13px;font-size:12px}
+
+  .status{text-align:center;font-size:16px;min-height:26px;font-weight:600;line-height:1.6;color:var(--ink)}
+  .status .hl{color:var(--gold-2);font-weight:800}
+  .status small{color:var(--muted);font-weight:500}
+
+  #action{display:flex;flex-direction:column;gap:15px;align-items:center}
+  .pad{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;width:100%;max-width:450px}
+  .pad button{padding:13px 0;font-size:19px;border-radius:var(--r);font-family:var(--font-serif);font-weight:700;
+    background:var(--panel-2);justify-content:center}
+  .pad button:hover{background:linear-gradient(180deg,var(--gold-2),var(--gold));color:#241a06;border-color:var(--gold)}
+  .actbtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .temphold{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);
+    background:var(--panel-2);padding:8px 14px;border-radius:var(--r);border:1px solid var(--line)}
+
+  /* ============ 日志 ============ */
+  #log{padding:15px 19px;max-height:186px;overflow:auto;font-size:13.5px;line-height:1.75}
+  #log .l{padding:3px 0;border-bottom:1px dashed var(--line-2)}
+  #log .l:last-child{border-bottom:none}
+  #log .l.me{color:var(--ink)}
+  #log .l.ai{color:var(--gold-2)}
+  #log .l.sys{color:var(--muted)}
+  #log .l.win{color:var(--good);font-weight:800}
+  #log .l.lose{color:var(--bad);font-weight:800}
+  #log::-webkit-scrollbar{width:8px}
+  #log::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+
+  /* ============ 弹窗 ============ */
+  .mask{position:fixed;inset:0;background:rgba(6,12,20,.72);display:none;align-items:center;justify-content:center;
+    z-index:50;padding:16px;backdrop-filter:blur(4px)}
+  .mask.on{display:flex;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{max-width:600px;width:100%;max-height:86vh;overflow:auto;padding:28px 30px}
+  .modal h2{margin:0 0 14px;font-size:23px;font-family:var(--font-serif);color:var(--gold-2);font-weight:700;
+    display:flex;align-items:center;gap:10px}
+  .modal h2 .ic{width:22px;height:22px}
+  .modal h3{margin:18px 0 6px;font-size:14px;color:var(--gold-2);letter-spacing:.5px;font-weight:700;
+    padding-left:11px;border-left:3px solid var(--gold)}
+  .modal p,.modal li{font-size:14px;line-height:1.8;color:var(--ink)}
+  .modal ul{padding-left:22px;margin:6px 0}
+  .modal .close{margin-top:20px}
+  .foot{margin-top:22px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}
+  a{color:var(--gold-2)}
+
+  @media (max-width:520px){
+    h1{font-size:23px}.sub{margin-left:0}
+    .tile{--tw:47px;font-size:24px}
+    .draws{gap:16px}
+    #setup{padding:22px 18px}
+  }
+  /* A11y:尊重「减少动态效果」偏好 */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.6 17.4A2 2 0 0 0 2 18.8V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.2a2 2 0 0 0 1.4-.6l.8-.8a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".6" fill="currentColor" stroke="none"/></svg>
+        达芬奇密码
+      </h1>
+      <span class="sub">Da Vinci Code · 人机对战</span>
+    </div>
+    <div class="btns">
+      <button class="ghost" id="themeBtn" aria-label="切换主题"></button>
+      <button class="ghost" id="rulesBtn">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+        <span>规则</span>
+      </button>
+      <button class="ghost" id="newBtn">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        <span>新游戏</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SETUP -->
+  <section class="card" id="setup">
+    <h2>开始一局</h2>
+    <p>你和 AI 各拿 4 张暗牌(数字 0–11,黑白两色共 24 张)。轮流<b>抽一张牌</b>并<b>猜对方任意一张暗牌的数字</b>——猜中就把对方那张翻开。<b>先被全部翻开的一方输</b>。选择 AI 难度后开始。</p>
+    <div class="opts">
+      <span class="lab">AI 难度</span>
+      <div class="seg" id="diffSeg">
+        <button data-d="easy">简单</button>
+        <button data-d="normal" class="on">普通</button>
+        <button data-d="hard">困难</button>
+      </div>
+    </div>
+    <div class="opts">
+      <span class="lab">先手</span>
+      <div class="seg" id="firstSeg">
+        <button data-f="human" class="on">我先</button>
+        <button data-f="ai">AI 先</button>
+      </div>
+    </div>
+    <button class="primary" id="startBtn">开始游戏</button>
+  </section>
+
+  <!-- BOARD -->
+  <section id="board">
+    <div class="card zone" id="aiZone">
+      <div class="ztitle">
+        <span class="name">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/></svg>
+          AI 的牌 <span class="badge" id="aiTurnB">—</span>
+        </span>
+        <span class="badge" id="aiCount">暗牌 4</span>
+      </div>
+      <div class="hand" id="aiHand"></div>
+    </div>
+
+    <div class="card" id="center">
+      <div class="draws" id="draws"></div>
+      <div class="status" id="status">—</div>
+      <div id="action"></div>
+    </div>
+
+    <div class="card zone" id="meZone">
+      <div class="ztitle">
+        <span class="name">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          你的牌 <span class="badge" id="meTurnB">—</span>
+        </span>
+        <span class="badge" id="meCount">暗牌 4</span>
+      </div>
+      <div class="hand" id="meHand"></div>
+    </div>
+
+    <div class="card" id="log"></div>
+  </section>
+
+  <div class="foot">
+    暗牌只有你自己看得到数字;对手只能看到颜色和位置。牌一定按<b>从小到大</b>排列,数字相同时<b>黑色在左、白色在右</b>。
+  </div>
+</div>
+
+<!-- RULES MODAL -->
+<div class="mask" id="rulesMask">
+  <div class="card modal">
+    <h2>
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+      达芬奇密码 · 玩法规则
+    </h2>
+    <h3>牌与开局</h3>
+    <ul>
+      <li>共 24 张牌:数字 <b>0–11</b> 各有<b>黑</b>、<b>白</b>两张。</li>
+      <li>你和 AI 各随机拿 <b>4 张</b>暗牌,其余放入牌堆(按颜色分成黑堆、白堆)。</li>
+      <li>每人把自己的牌<b>从小到大</b>排好:数字小的在左。<b>数字相同时,黑色排在白色左边。</b></li>
+      <li>暗牌:只有持有者能看到数字,别人只能看到<b>颜色</b>和它在序列里的<b>位置</b>。</li>
+    </ul>
+    <h3>轮到你时</h3>
+    <ul>
+      <li><b>① 抽牌:</b>从黑堆或白堆<b>选一种颜色</b>抽一张(看得到颜色,看不到数字)。这张牌先拿在手里、不公开。</li>
+      <li><b>② 猜牌(必须猜一次):</b>指定对手的某一张暗牌,说出它的数字。</li>
+      <li><b>猜对</b> → 对手把那张牌<b>翻开</b>。你可以选择:<b>继续猜</b>(风险)或<b>停手</b>。</li>
+      <li><b>停手</b> → 把①抽到的牌插入你自己手牌的正确位置,保持<b>暗牌</b>。回合结束。</li>
+      <li><b>猜错</b> → 你必须把①抽到的那张牌<b>翻开</b>放进自己手牌,回合立即结束。</li>
+    </ul>
+    <h3>继续猜的风险</h3>
+    <ul>
+      <li>只要猜对,你可以一直继续猜下去,把对手的牌一张张翻开。</li>
+      <li>但只要中途<b>猜错一次</b>,你手里那张抽来的牌就得翻开——所以见好就收很重要。</li>
+      <li>若牌堆已空、无牌可抽,猜错时改为<b>自选一张自己的暗牌翻开</b>。</li>
+    </ul>
+    <h3>胜负</h3>
+    <ul>
+      <li>当一方所有牌都被翻开时,该方<b>输</b>,另一方<b>获胜</b>。</li>
+    </ul>
+    <h3>小提示</h3>
+    <p>利用「排序规则」推理:某个位置左右已翻开的牌能圈定它的数字范围;再结合已经出现过的牌排除可能,就能越猜越准。</p>
+    <button class="primary close" id="rulesClose">明白了</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ---------------- 常量与工具 ---------------- */
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const colOf = k => (k % 2 === 1 ? 'W' : 'B');      // 奇数为白
+const numOf = k => Math.floor(k / 2);
+const keyOf = t => t.num * 2 + (t.color === 'W' ? 1 : 0);
+const cmp = (a, b) => keyOf(a) - keyOf(b);
+
+/* ---------------- 游戏状态 ---------------- */
+let S = null;
+
+function newGame(diff, first){
+  // 建 24 张牌
+  let deck = [];
+  for(let n=0;n<=11;n++){ deck.push({color:'B',num:n,revealed:false,id:'B'+n});
+                          deck.push({color:'W',num:n,revealed:false,id:'W'+n}); }
+  shuffle(deck);
+  const me = deck.splice(0,4);
+  const ai = deck.splice(0,4);
+  me.sort(cmp); ai.sort(cmp);
+  S = {
+    diff, deck,               // deck = 剩余牌堆(乱序)
+    me, ai,
+    turn: first,              // 'human' | 'ai'
+    phase: 'draw',            // draw | guess | decide | sacrifice | over
+    temp: null,               // 当前抽到、尚未入手的牌
+    selTarget: null,          // 猜牌时选中的对手牌下标
+    firstGuess: true,         // 本回合是否还没猜过
+    over:false, winner:null
+  };
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+function poolCount(color){ return S.deck.filter(t=>t.color===color).length; }
+function drawColor(color){
+  const idx = S.deck.findIndex(t=>t.color===color);
+  if(idx<0) return null;
+  return S.deck.splice(idx,1)[0];
+}
+function insertSorted(hand, tile){
+  let i=0; while(i<hand.length && cmp(hand[i],tile)<0) i++;
+  hand.splice(i,0,tile); return i;
+}
+function hiddenCount(hand){ return hand.filter(t=>!t.revealed).length; }
+
+/* ---------------- 渲染 ---------------- */
+function render(){
+  if(!S){ return; }
+  // 对手手牌(暗牌显示 ?)
+  const aiHand = $('#aiHand'); aiHand.innerHTML='';
+  S.ai.forEach((t,i)=>{
+    const canPick = S.turn==='human' && S.phase==='guess' && !t.revealed;
+    aiHand.appendChild(tileEl(t, /*showNum*/ t.revealed, canPick, i, S.selTarget===i));
+  });
+  // 自己手牌(始终看得到数字)
+  const meHand = $('#meHand'); meHand.innerHTML='';
+  S.me.forEach((t,i)=> meHand.appendChild(tileEl(t, true, false, i, false, /*mine*/true)) );
+
+  $('#aiCount').textContent = '暗牌 '+hiddenCount(S.ai);
+  $('#meCount').textContent = '暗牌 '+hiddenCount(S.me);
+  $('#aiTurnB').className = 'badge'+(S.turn==='ai'?' turn':'');
+  $('#aiTurnB').textContent = S.turn==='ai'?'思考中…':'—';
+  $('#meTurnB').className = 'badge'+(S.turn==='human'?' turn':'');
+  $('#meTurnB').textContent = S.turn==='human'?'你的回合':'—';
+
+  renderDraws();
+  renderAction();
+}
+function tileEl(t, showNum, canPick, idx, sel, mine){
+  const el=document.createElement('div');
+  el.className='tile '+(t.color==='B'?'b':'w');
+  if(!showNum) el.classList.add('hidden');
+  if(canPick) el.classList.add('pick');
+  if(sel) el.classList.add('sel');
+  if(showNum) el.textContent = t.num;
+  if(t.revealed){
+    const r=document.createElement('span'); r.className='rev'; r.textContent= mine?'已暴露':'已翻开'; el.appendChild(r);
+  } else if(mine){
+    // 自己的暗牌:淡淡标示对手看不到
+  }
+  if(canPick){
+    el.setAttribute('role','button'); el.tabIndex=0;
+    el.setAttribute('aria-label','猜 AI 左起第'+(idx+1)+'张('+(t.color==='B'?'黑':'白')+')');
+    el.onclick=()=>{ S.selTarget = (S.selTarget===idx? null: idx); render(); };
+    el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } };
+  }
+  el.dataset.tid = t.id;
+  return el;
+}
+function renderDraws(){
+  const d=$('#draws'); d.innerHTML='';
+  [['B','黑堆'],['W','白堆']].forEach(([c,label])=>{
+    const wrap=document.createElement('div'); wrap.className='pile';
+    const pt=document.createElement('div'); pt.className='pileTile '+(c==='B'?'b':'w');
+    const tag=document.createElement('span'); tag.className='tag'; tag.textContent=label; pt.appendChild(tag);
+    const cnt=document.createElement('span'); cnt.className='cnt'; cnt.textContent='×'+poolCount(c); pt.appendChild(cnt);
+    wrap.appendChild(pt);
+    if(S.turn==='human' && S.phase==='draw'){
+      const b=document.createElement('button');
+      b.textContent='抽'+label.replace('堆','');
+      b.disabled = poolCount(c)===0;
+      b.onclick=()=>humanDraw(c);
+      wrap.appendChild(b);
+    }
+    d.appendChild(wrap);
+  });
+}
+function renderAction(){
+  const a=$('#action'); a.innerHTML='';
+  const st=$('#status');
+  if(S.over){
+    st.innerHTML = S.winner==='human'
+      ? '🎉 <span class="hl">你赢了!</span>'
+      : '<span class="hl">AI 赢了</span>,再来一局?';
+    return;
+  }
+  if(S.turn==='ai'){ st.innerHTML='AI 正在行动…'; return; }
+
+  // 人类回合
+  if(S.phase==='draw'){
+    st.innerHTML='你的回合:先<span class="hl">从黑堆或白堆抽一张</span>牌。'+
+      (poolCount('B')+poolCount('W')===0?'<br><small>牌堆已空,直接猜牌。</small>':'');
+    if(poolCount('B')+poolCount('W')===0){ S.phase='guess'; renderAction(); return; }
+    return;
+  }
+  if(S.phase==='guess'){
+    // 显示手中抽到的牌
+    if(S.temp){
+      const hold=document.createElement('div'); hold.className='temphold';
+      hold.appendChild(document.createTextNode('你抽到(暂持):'));
+      const te=tileEl(S.temp,true,false,-1,false); te.classList.add('temp'); te.style.setProperty('--tw','40px');
+      hold.appendChild(te);
+      a.appendChild(hold);
+    }
+    if(S.selTarget==null){
+      st.innerHTML='点上方 <span class="hl">AI 的一张暗牌</span>,再选一个数字来猜。';
+    }else{
+      const t=S.ai[S.selTarget];
+      st.innerHTML='猜 AI 左起第 <span class="hl">'+(S.selTarget+1)+'</span> 张('+(t.color==='B'?'黑':'白')+')是几?';
+      const pad=document.createElement('div'); pad.className='pad';
+      for(let n=0;n<=11;n++){
+        const b=document.createElement('button'); b.textContent=n;
+        b.onclick=()=>humanGuess(n);
+        pad.appendChild(b);
+      }
+      a.appendChild(pad);
+    }
+    return;
+  }
+  if(S.phase==='decide'){
+    st.innerHTML='✅ 猜对了!<span class="hl">继续猜</span>(猜错会亮出你抽到的牌)还是<span class="hl">停手</span>?';
+    const box=document.createElement('div'); box.className='actbtns';
+    const c=document.createElement('button'); c.className='primary'; c.textContent='继续猜'; c.onclick=()=>{ S.phase='guess'; S.selTarget=null; render(); };
+    const s=document.createElement('button'); s.textContent='停手(收好这张)'; s.onclick=humanStop;
+    box.appendChild(c); box.appendChild(s); a.appendChild(box);
+    return;
+  }
+  if(S.phase==='sacrifice'){
+    st.innerHTML='❌ 猜错且牌堆已空:<span class="hl">点你自己的一张暗牌翻开</span>。';
+    // 让自己的暗牌可点
+    const meHand=$('#meHand'); meHand.innerHTML='';
+    S.me.forEach((t,i)=>{
+      const canPick = !t.revealed;
+      const el=tileEl(t,true,canPick,i,false,true);
+      if(canPick) el.onclick=()=>{ t.revealed=true; log('你翻开了自己左起第'+(i+1)+'张('+t.num+')。','me'); endHumanTurn(); };
+      meHand.appendChild(el);
+    });
+  }
+}
+
+/* ---------------- 日志 ---------------- */
+function log(msg, cls){
+  const box=$('#log'); const d=document.createElement('div');
+  d.className='l '+(cls||'sys'); d.innerHTML=msg; box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+
+/* ---------------- 人类操作 ---------------- */
+function humanDraw(color){
+  if(S.phase!=='draw') return;
+  S.temp = drawColor(color);
+  log('你从'+(color==='B'?'黑':'白')+'堆抽了一张牌。','me');
+  S.phase='guess'; S.selTarget=null; render();
+}
+function humanGuess(n){
+  const i=S.selTarget; if(i==null) return;
+  const t=S.ai[i];
+  const guessLabel='左起第'+(i+1)+'张('+(t.color==='B'?'黑':'白')+')= '+n;
+  if(!t.revealed && t.num===n){
+    // 猜对
+    t.revealed=true;
+    log('你猜 '+guessLabel+' —— ✅ 猜对!','me');
+    flashTile('#aiHand',t.id);
+    if(hiddenCount(S.ai)===0){ return finish('human'); }
+    S.firstGuess=false;
+    S.phase='decide'; S.selTarget=null; render();
+  }else{
+    log('你猜 '+guessLabel+' —— ❌ 猜错。','me');
+    // 猜错:亮出抽到的牌;若无牌(堆空)则牺牲一张
+    if(S.temp){
+      S.temp.revealed=true;
+      insertSorted(S.me,S.temp);
+      log('你抽到的牌('+S.temp.num+')被翻开。','me');
+      S.temp=null;
+      if(hiddenCount(S.me)===0){ render(); return finish('ai'); }
+      endHumanTurn();
+    }else{
+      S.phase='sacrifice'; S.selTarget=null; render();
+    }
+  }
+}
+function humanStop(){
+  if(S.temp){ const pos=insertSorted(S.me,S.temp); log('你收好抽到的牌,暗插进第'+(pos+1)+'位。','me'); S.temp=null; }
+  endHumanTurn();
+}
+function endHumanTurn(){
+  S.selTarget=null; S.temp=null; S.firstGuess=true;
+  if(S.over) { render(); return; }
+  S.turn='ai'; S.phase='draw'; render();
+  setTimeout(aiTurn, 650);
+}
+
+/* ---------------- 胜负 ---------------- */
+function finish(winner){
+  S.over=true; S.winner=winner; S.phase='over'; S.turn='-';
+  // 亮出所有牌
+  S.me.forEach(t=>t.revealed=true); S.ai.forEach(t=>t.revealed=true);
+  if(winner==='human'){ log('🎉 AI 的牌全部被翻开,你赢了!','win'); }
+  else{ log('你的牌全部被翻开,AI 获胜。','lose'); }
+  render();
+}
+
+/* ---------------- AI 推理核心 ---------------- */
+// 计算 AI 视角下,对手每个暗牌位置可能的数字集合与频次
+function analyze(){
+  // 未知牌 = 全部 24 张 - AI 自己的所有牌(含暗牌与已翻) - 人类已翻开的牌 - AI 暂持的 temp
+  const known = new Set();
+  S.ai.forEach(t=>known.add(keyOf(t)));
+  if(S.aiTemp) known.add(keyOf(S.aiTemp));
+  S.me.forEach(t=>{ if(t.revealed) known.add(keyOf(t)); });
+  const unknown=[]; for(let k=0;k<24;k++){ if(!known.has(k)) unknown.push(k); }
+
+  const target=S.me;
+  const n=target.length;
+  const domain=target.map(t=> t.revealed ? null : unknown.filter(k=> colOf(k)=== (t.color==='W'?'W':'B')));
+  const possible=target.map(()=>new Set());
+  const freq=target.map(()=>({}));
+  let total=0;
+  function rec(idx,prev,used,picks){
+    if(idx===n){ total++; picks.forEach(([i,num])=>{ possible[i].add(num); freq[i][num]=(freq[i][num]||0)+1; }); return; }
+    const t=target[idx];
+    if(t.revealed){ const k=keyOf(t); if(k<=prev) return; rec(idx+1,k,used,picks); return; }
+    for(const k of domain[idx]){
+      if(k<=prev||used.has(k)) continue;
+      used.add(k); picks.push([idx,numOf(k)]);
+      rec(idx+1,k,used,picks);
+      picks.pop(); used.delete(k);
+    }
+  }
+  rec(0,-1,new Set(),[]);
+  return {possible,freq,total};
+}
+// 由 analyze 结果,给出每个暗牌位置的最佳猜测与命中概率
+function options(useFreq){
+  const {possible,freq,total}=analyze();
+  const opts=[];
+  S.me.forEach((t,i)=>{
+    if(t.revealed) return;
+    const arr=[...possible[i]];
+    if(arr.length===0) return;
+    let bestNum=arr[0], bestP=0;
+    if(useFreq && total>0){
+      arr.forEach(num=>{ const p=(freq[i][num]||0)/total; if(p>bestP){bestP=p;bestNum=num;} });
+    }else{
+      bestNum=arr[Math.floor(Math.random()*arr.length)];
+      bestP=1/arr.length;
+    }
+    opts.push({slot:i,num:bestNum,prob:bestP,size:arr.length,all:arr});
+  });
+  return opts;
+}
+
+/* ---------------- AI 回合 ---------------- */
+async function aiTurn(){
+  if(S.over) return;
+  S.phase='ai'; render();
+  await sleep(500);
+
+  // ① 抽牌:选剩余较多的颜色(更好隐藏)
+  S.aiTemp=null;
+  const bC=poolCount('B'), wC=poolCount('W');
+  if(bC+wC>0){
+    const color = bC===wC ? (Math.random()<0.5?'B':'W') : (bC>wC?'B':'W');
+    S.aiTemp = drawColor(color);
+    log('AI 从'+(color==='B'?'黑':'白')+'堆抽了一张牌。','ai');
+    render(); await sleep(500);
+  }
+
+  // ② 猜牌循环
+  let first=true;
+  while(true){
+    if(hiddenCount(S.me)===0) break;
+    const useFreq = S.diff==='hard';
+    let opts = options(useFreq);
+    if(opts.length===0) break;
+
+    // 决策
+    opts.sort((a,b)=> b.prob-a.prob || a.size-b.size);
+    const certainty = opts.find(o=>o.size===1);
+    let choice=null;
+
+    if(first){
+      // 必须猜一次:有确定的先猜确定的,否则猜概率最高的
+      choice = certainty || opts[0];
+      if(S.diff==='easy' && !certainty){
+        // 简单 AI:第一次随机挑一个合法猜测
+        const r=opts[Math.floor(Math.random()*opts.length)];
+        choice={slot:r.slot,num:r.all[Math.floor(Math.random()*r.all.length)],size:r.size,prob:r.prob};
+      }
+    }else{
+      // 是否继续:优先确定项;否则按难度决定是否冒险
+      if(certainty){ choice=certainty; }
+      else{
+        const thr = S.diff==='hard'?0.34 : S.diff==='normal'?0.5 : 2; // easy 不冒险(阈值>1 恒不满足)
+        if(opts[0].prob>=thr) choice=opts[0]; else choice=null;
+      }
+    }
+
+    if(!choice){ // 停手
+      await sleep(400);
+      if(S.aiTemp){ const pos=insertSorted(S.ai,S.aiTemp); log('AI 见好就收,把抽到的牌暗插进第'+(pos+1)+'位。','ai'); S.aiTemp=null; }
+      break;
+    }
+
+    // 执行猜测
+    await sleep(650);
+    const t=S.me[choice.slot];
+    const label='你左起第'+(choice.slot+1)+'张('+(t.color==='B'?'黑':'白')+')= '+choice.num;
+    if(!t.revealed && t.num===choice.num){
+      t.revealed=true;
+      log('AI 猜 '+label+' —— ✅ 被猜中!','ai');
+      flashTile('#meHand',t.id);
+      render();
+      if(hiddenCount(S.me)===0){ finish('ai'); return; }
+      first=false;
+      await sleep(450);
+      continue;
+    }else{
+      log('AI 猜 '+label+' —— ❌ 猜错。','ai');
+      if(S.aiTemp){
+        S.aiTemp.revealed=true; insertSorted(S.ai,S.aiTemp);
+        log('AI 抽到的牌('+S.aiTemp.num+')被翻开。','ai'); S.aiTemp=null;
+        render();
+        if(hiddenCount(S.ai)===0){ finish('human'); return; }
+      }else{
+        // 堆空牺牲:翻开自己一张(挑对人类最难获益的——这里翻开可推理性最低的,简单起见翻开中间张)
+        const hid=S.ai.map((x,i)=>({x,i})).filter(o=>!o.x.revealed);
+        const pick=hid[Math.floor(hid.length/2)];
+        pick.x.revealed=true; log('AI 无牌可抽,翻开自己左起第'+(pick.i+1)+'张('+pick.x.num+')。','ai');
+        render();
+        if(hiddenCount(S.ai)===0){ finish('human'); return; }
+      }
+      break;
+    }
+  }
+
+  // AI 回合结束
+  S.aiTemp=null;
+  if(S.over) return;
+  S.turn='human'; S.phase='draw'; first=true;
+  await sleep(300);
+  render();
+}
+
+/* ---------------- 动效 ---------------- */
+function flashTile(handSel, id){
+  const el=document.querySelector(handSel+' [data-tid="'+id+'"]');
+  if(el){ el.classList.add('flip'); setTimeout(()=>el.classList.remove('flip'),550); }
+}
+
+/* ---------------- 事件绑定 ---------------- */
+let cfg={diff:'normal',first:'human'};
+$('#diffSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+  [...$('#diffSeg').children].forEach(x=>x.classList.remove('on')); b.classList.add('on'); cfg.diff=b.dataset.d; });
+$('#firstSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+  [...$('#firstSeg').children].forEach(x=>x.classList.remove('on')); b.classList.add('on'); cfg.first=b.dataset.f; });
+
+$('#startBtn').onclick=()=>{
+  newGame(cfg.diff,cfg.first);
+  $('#setup').style.display='none';
+  $('#board').style.display='block';
+  $('#log').innerHTML='';
+  log('新游戏开始 · 难度:'+({easy:'简单',normal:'普通',hard:'困难'}[cfg.diff])+' · 先手:'+(cfg.first==='human'?'你':'AI'),'sys');
+  render();
+  if(S.turn==='ai') setTimeout(aiTurn,700);
+};
+$('#newBtn').onclick=()=>{ $('#board').style.display='none'; $('#setup').style.display='block'; S=null; };
+$('#rulesBtn').onclick=()=>$('#rulesMask').classList.add('on');
+$('#rulesClose').onclick=()=>$('#rulesMask').classList.remove('on');
+$('#rulesMask').onclick=e=>{ if(e.target===$('#rulesMask')) $('#rulesMask').classList.remove('on'); };
+
+/* ---------------- 主题切换(SVG 图标,非 emoji)---------------- */
+(function(){
+  const root=document.documentElement, btn=$('#themeBtn');
+  const SUN='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  const MOON='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+  let cur='dark';
+  try{ const s=localStorage.getItem('dvc-theme'); if(s) cur=s;
+       else if(window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) cur='light'; }catch(e){}
+  function apply(t){ cur=t; root.setAttribute('data-theme',t);
+    btn.innerHTML = (t==='dark'? SUN+'<span>浅色</span>' : MOON+'<span>深色</span>');
+    try{ localStorage.setItem('dvc-theme',t); }catch(e){} }
+  apply(cur);
+  btn.onclick=()=>apply(cur==='dark'?'light':'dark');
+})();
+</script>
+</body>
+</html>
