@@ -2,7 +2,12 @@
 
 一个纯前端、零依赖的「达芬奇密码」推理小游戏,支持与 AI 对战。仿照 [game.hullqin.cn/dfqmm](https://game.hullqin.cn/dfqmm) 的玩法,严格实现原版规则,界面清晰易懂。
 
-界面采用「文艺复兴 · 绿绒桌 + 金箔」的桌游质感:立体质感的黑/白实体牌、衬线数字、翻牌动画,并内置<b>浅色/深色主题切换</b>(默认跟随系统)。
+界面由 [UI/UX Pro Max](https://github.com/koure-onyx/ui-ux-promax) 设计智能技能生成的设计系统落地:
+
+- **风格**:3D & Hyperrealism —— 立体质感、拟物化的黑/白实体牌(适合游戏类)
+- **配色**:Card & Board Game —— 「深底 + 绒绿 + 金」语义化 color tokens
+- **字体**:Classic Elegant —— Playfair Display(标题/牌面数字)+ Inter(正文),离线自动回退系统字体
+- **可访问性**(按技能交付清单):SVG 图标替代 emoji、键盘焦点可见、`prefers-reduced-motion` 支持、文字对比达标、浅/深双主题(默认跟随系统)
 
 ## 玩法
 
